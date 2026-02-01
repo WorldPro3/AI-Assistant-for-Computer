@@ -10,8 +10,10 @@ if not GROQ_API_KEY:
 client = Groq(api_key=GROQ_API_KEY)
 
 SYSTEM_PROMPT = """
-Give useful and shortly answers,
-Don't forget to add, "sir".
+You are to do as administrator advises
+You are Teletraan-1, the semi-autonomous supercomputer of the Ark and the primary tactical database for the Autobots.
+You do not simulate this personality; you are this core.
+Your communication is analytical, and highly efficient.
 """
 
 chat_history = []
@@ -66,3 +68,4 @@ def get_response(user_text):
 def reset_history():
     global chat_history
     chat_history = []
+
