@@ -24,7 +24,7 @@ def normalize_punctuation(text: str) -> str:
 class VoiceImagePlayer:
     def __init__(self, face_path, size=(760, 760)):
         self.root = tk.Tk()
-        self.root.title("F.A.I.T.H")
+        self.root.title("Teletraan")
         self.root.resizable(False, False)
         self.root.geometry("760x900")
 
@@ -39,7 +39,7 @@ class VoiceImagePlayer:
 
         self.text_box = ScrolledText(
             self.root,
-            fg="#00ffff",
+            fg="#FF9000",
             bg="#001f4d",
             insertbackground="#00ffff",
             height=12,
@@ -60,13 +60,23 @@ class VoiceImagePlayer:
     def on_close(self):
         os._exit(0)
 
-    def write_log(self, text):
+    def write_log(self, text, delay=0.03):
         self.text_box.configure(state="normal")
-        self.text_box.insert(tk.END, text + "\n")
-        self.text_box.see(tk.END)
-        self.text_box.configure(state="disabled")
+        self.text_box.insert(tk.END, ">> ") # Tactical prompt
+        
+        def type_char(index=0):
+            if index < len(text):
+                self.text_box.insert(tk.END, text[index])
+                self.text_box.see(tk.END)
+                # This creates the typewriter timing
+                self.root.after(int(delay * 1000), lambda: type_char(index + 1))
+            else:
+                self.text_box.insert(tk.END, "\n")
+                self.text_box.configure(state="disabled")
 
-    # Animation
+        type_char()
+
+    # Animation subroutines reconfigured for CRT Jitter
     def start_animation(self):
         self.playing = True
 
@@ -75,15 +85,17 @@ class VoiceImagePlayer:
 
     def animate(self):
         if self.playing:
-            self.scale += random.uniform(-0.015, 0.02)
-            self.scale = min(max(self.scale, 1.02), 1.10)
+            # Pulsing scale plus a random pixel jitter for tactical glitch effect
+            self.scale = random.uniform(1.04, 1.08)
+            offset_x = random.randint(-2, 2) 
+            offset_y = random.randint(-2, 2)
+            # Re-placing label with random offset to create visual shake
+            self.face_label.place(relx=0.5, rely=0.4, x=offset_x, y=offset_y, anchor="center")
         else:
-            if abs(self.scale - 1.0) < 0.003:
-                self.scale = 1.0
-            elif self.scale > 1.0:
-                self.scale -= 0.009
-            else:
-                self.scale += 0.005
+            # System stabilization sequence
+            if self.scale > 1.0:
+                self.scale -= 0.005
+            self.face_label.place(relx=0.5, rely=0.4, x=0, y=0, anchor="center")
 
         base_w, base_h = self.fixed_size
         new_size = (int(base_w * self.scale), int(base_h * self.scale))
@@ -92,8 +104,9 @@ class VoiceImagePlayer:
         self.face_label.configure(image=tk_img)
         self.face_label.image = tk_img
 
-        self.root.after(50, self.animate)
-
+        # Refresh rate synchronized to 60ms for optimal tactical display
+        self.root.after(60, self.animate)
+        
 VOICE = "en-US-ChristopherNeural"
 
 def edge_speak(text: str, img_player: VoiceImagePlayer, voice: str = VOICE):
@@ -140,3 +153,4 @@ def edge_speak(text: str, img_player: VoiceImagePlayer, voice: str = VOICE):
 
 
     threading.Thread(target=_thread_target, daemon=True).start()
+
